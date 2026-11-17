@@ -1,0 +1,7 @@
+[build]
+  publish = "public"
+
+[dev]
+  publish = "public"
+
+# Netlify Server handles /ws upgrades; static assets are served from /public.
