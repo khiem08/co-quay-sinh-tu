@@ -10,8 +10,6 @@
     <script src="/relay.js"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+SC:wght@500;700;900&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #090a0f;
@@ -685,6 +683,19 @@
         #mobileClientView.quiz-eliminated-lock #mobPreQuizDone { display:block!important; border-color:#d6a94f; }
         #mobileClientView.quiz-eliminated-lock #mobPreQuizStatus { color:#fbbf24!important; }
 
+        /* Font chữ hệ thống dễ đọc, có bộ ký tự tiếng Việt và tiếng Trung. */
+        html, body, body * {
+            font-family: Arial, "Segoe UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important;
+            font-synthesis: none;
+        }
+        /* Ẩn toàn bộ giao diện và khu vực điều khiển vật phẩm cũ. */
+        .seat-items, #mobItemsGrid, #simItemsGrid, #mobItemTargetSelect,
+        #mobItemCount, #simSecretBox, #mobSecretBanner,
+        #quizPlayerItemsPreview, #quizRewardPreviewBadge,
+        #uiItemsRemaining, #mobItemTargetSelect, #simItemsGrid {
+            display:none !important;
+        }
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative selection:bg-rose-600 selection:text-white">
@@ -759,28 +770,16 @@
                 <div id="mobTurnBanner" class="text-center py-2.5 px-4 rounded-xl font-bold text-sm tracking-wider uppercase bg-amber-500/20 border border-amber-500/50 text-amber-300">
                     ĐẾN LƯỢT CỦA BẠN! HÃY HÀNH ĐỘNG
                 </div>
-
-                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 mb-3">
-                    <label for="mobItemTargetSelect" class="block text-[11px] font-mono-tech text-slate-400 mb-1">MỤC TIÊU CHO CÒNG TAY</label>
-                    <select id="mobItemTargetSelect" class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm">
-                        <option value="0">Chọn người chơi</option>
-                    </select>
+                <div class="hidden" aria-hidden="true">
+                    <select id="mobItemTargetSelect"></select>
+                    <span id="mobItemCount"></span>
+                    <div id="mobItemsGrid"></div>
                 </div>
 
-                <!-- 4 ô vật phẩm trên tay cầm điện thoại -->
-                <div>
-                    <div class="flex justify-between items-center text-xs font-mono-tech text-slate-400 mb-2 px-1">
-                        <span>TÚI ĐỒ CÁ NHÂN (TỐI ĐA 4 MÓN)</span>
-                        <span id="mobItemCount">4/4</span>
-                    </div>
-                    <div id="mobItemsGrid" class="grid grid-cols-2 gap-2.5">
-                        <!-- 4 Slots rendered via JS -->
-                    </div>
-                </div>
 
                 <!-- Target Selection / Shoot Buttons -->
                 <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
-                    <div class="text-xs font-mono-tech text-slate-400 uppercase text-center">BÓP CÒ KHẨU SHOTGUN</div>
+                    <div class="text-xs font-mono-tech text-slate-400 uppercase text-center">CHỌN MỤC TIÊU VÀ BÓP CÒ</div>
                     <button id="mobShootSelfBtn" onclick="mobileSendAction({type:'SHOOT', target: mobileState.seatIndex})"
                         class="w-full py-3.5 px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
                         <span>🛡️ TỰ BẮN MÌNH (Đạn giả = Giữ lượt)</span>
@@ -834,7 +833,7 @@
                         <h1 class="font-extrabold text-lg tracking-tight text-white uppercase">CÒ QUAY SINH TỬ</h1>
                         <span class="text-xs font-mono-tech px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold">HSK 3 • ĐẤU TRƯỜNG 6 NGƯỜI</span>
                     </div>
-                    <p class="text-xs text-slate-400">Mỗi người có 5 trái tim • Khởi đầu 4 vật phẩm • Hết sạch đồ toàn bàn mới được tiếp tế qua HSK 3</p>
+                    <p class="text-xs text-slate-400">Mỗi người có 1 trái tim • Súng có 6 viên đạn • Mỗi băng ngẫu nhiên 1–3 đạn thật</p>
                 </div>
             </div>
 
@@ -846,9 +845,6 @@
                 <button onclick="cleanupStaleConnections()" class="px-3 py-1.5 rounded-xl text-xs font-mono-tech font-semibold bg-rose-900/30 hover:bg-rose-700/40 text-rose-200 border border-rose-500/40">🧹 DỌN KẾT NỐI</button>
                 <button onclick="togglePinyin()" id="btnPinyinToggle" class="px-3 py-1.5 rounded-xl text-xs font-mono-tech font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition">
                     Pinyin: BẬT
-                </button>
-                <button onclick="forceStartQuizPhase()" class="px-3 py-1.5 rounded-xl text-xs font-mono-tech font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition flex items-center gap-1.5">
-                    <span>⚡ Test Pha Câu Hỏi HSK (60s)</span>
                 </button>
                 <button onclick="openVocabModal()" class="px-3 py-1.5 rounded-xl text-xs font-mono-tech font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition">
                     📖 31 Từ Vựng HSK
@@ -897,12 +893,8 @@
                     </div>
                 </div>
                 <div class="supply-strip z-10">
-                    <div>
-                        <div class="text-[10px] font-mono-tech uppercase text-slate-400">VẬT PHẨM CÒN TRÊN BÀN</div>
-                        <div id="uiItemsRemaining" class="supply-big">24 / 24 MÓN</div>
-                    </div>
                     <div class="flex-1 min-w-[230px]">
-                        <div class="flex justify-between text-[10px] font-mono-tech text-slate-400 mb-1"><span>DẢI 20 VỎ ĐẠN</span><span id="uiShellStripCount">20 / 20 CÒN LẠI</span></div>
+                        <div class="flex justify-between text-[10px] text-slate-300 mb-1"><span>Ổ ĐẠN 6 VIÊN</span><span id="uiShellStripCount">6 / 6 CÒN LẠI</span></div>
                         <div id="uiShellStrip" class="shell-strip"></div>
                     </div>
                 </div>
@@ -965,10 +957,10 @@
                         <!-- Shotgun Damage Status Pill -->
                         <div class="mt-2 flex items-center gap-3 z-20">
                             <span id="uiGunDamageBadge" class="px-3 py-0.5 rounded-full text-xs font-mono-tech font-bold bg-slate-900/90 border border-slate-700 text-slate-300">
-                                SÁT THƯƠNG: 1 MÁU
+                                SÁT THƯƠNG: 1 TIM
                             </span>
                             <span id="uiCenterAnnouncement" class="text-xs font-mono-tech font-semibold text-amber-300">
-                                Bấm vào vật phẩm hoặc chọn mục tiêu để bắn!
+                                Chọn bất kỳ người chơi còn sống nào để bắn!
                             </span>
                         </div>
                     </div>
@@ -987,7 +979,7 @@
                     <div class="flex items-center gap-2.5 w-full sm:w-auto overflow-hidden">
                         <span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/40 text-rose-300 font-mono-tech text-xs font-bold shrink-0">NHẬT KÝ BÀN</span>
                         <div id="uiActionLogText" class="text-xs sm:text-sm text-slate-200 truncate font-medium">
-                            Khởi tạo bàn 6 người. Tiếp tế chỉ xuất hiện sau khi toàn bàn dùng hết vật phẩm!
+                            Bàn đấu đã sẵn sàng. Mỗi băng có 6 viên, gồm ngẫu nhiên 1–3 viên đạn thật.
                         </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
@@ -1029,7 +1021,7 @@
                     <div class="flex items-center justify-between bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
                         <div>
                             <div id="simSeatName" class="font-extrabold text-sm text-white">NGƯỜI CHƠI 1 (GHẾ 1)</div>
-                            <div id="simSeatRole" class="text-[11px] font-mono-tech text-cyan-400">Đang cầm lượt • 4/4 Vật phẩm</div>
+                            <div id="simSeatRole" class="text-[11px] font-mono-tech text-cyan-400">Đang chờ lượt</div>
                         </div>
                         <div id="simSeatHearts" class="flex items-center gap-1 text-base">
                             <!-- Hearts -->
@@ -1041,17 +1033,7 @@
                         <div class="text-[10px] font-mono-tech uppercase text-cyan-300">KÍNH LÚP SOI BUỒNG ĐẠN (CHỈ BẠN THẤY)</div>
                         <div id="simSecretValue" class="text-sm font-extrabold text-white mt-0.5">🔴 ĐẠN THẬT</div>
                     </div>
-
-                    <!-- 4 Item Slots Interactive Grid -->
-                    <div class="my-2">
-                        <div class="flex items-center justify-between text-[11px] font-mono-tech text-slate-400 mb-1.5">
-                            <span>KHO VẬT PHẨM (CHẠM ĐỂ DÙNG)</span>
-                            <span class="text-amber-400">Tối đa 4 món</span>
-                        </div>
-                        <div id="simItemsGrid" class="grid grid-cols-2 gap-2">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
+                    <div id="simItemsGrid" class="hidden" aria-hidden="true"></div>
 
                     <!-- Target Selection / Shoot Buttons -->
                     <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 space-y-2">
@@ -1063,18 +1045,6 @@
                         <div id="simTargetsGrid" class="grid grid-cols-3 gap-1.5 pt-1">
                             <!-- Buttons for seats 1..6 -->
                         </div>
-                    </div>
-                </div>
-
-                <!-- Item Reference Legend -->
-                <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 text-[11px] space-y-1 text-slate-300">
-                    <div class="font-mono-tech font-bold text-slate-400 uppercase mb-1">5 LOẠI VẬT PHẨM:</div>
-                    <div class="grid grid-cols-2 gap-x-2 gap-y-1">
-                        <div>🔍 <b class="text-white">Kính Lúp:</b> Soi viên đạn hiện tại</div>
-                        <div>🍵 <b class="text-white">Trà Nóng:</b> Hồi 1 Máu, tối đa 5</div>
-                        <div>🪚 <b class="text-white">Cưa Sắt:</b> Đạn thật kế tiếp gây 2 sát thương</div>
-                        <div>🍺 <b class="text-white">Lon Bia:</b> Văng bỏ viên đạn hiện tại</div>
-                        <div>⛓️ <b class="text-white">Còng Tay:</b> Khóa lượt kế tiếp</div>
                     </div>
                 </div>
 
@@ -1178,12 +1148,12 @@
         <div class="max-w-lg w-full bg-slate-900 border-2 border-rose-500/60 rounded-3xl p-6 text-center space-y-5 shadow-[0_0_70px_rgba(244,63,94,0.3)]">
             <div class="text-xs font-mono-tech uppercase tracking-widest text-rose-400">NẠP ĐẠN VÀO BUỒNG SÚNG SHOTGUN</div>
             <h3 id="loadModalTitle" class="text-3xl font-extrabold text-white">VÒNG ĐẤU THỨ 1</h3>
-            <p class="text-sm text-slate-300">Hãy ghi nhớ số lượng đạn thật và đạn giả trước khi chúng được trộn ngẫu nhiên vào súng:</p>
+            <p class="text-sm text-slate-300">Súng có 6 viên. Mỗi lần nạp sẽ có ngẫu nhiên 1, 2 hoặc 3 viên đạn thật; số còn lại là đạn giả.</p>
             <div id="loadModalShellVisuals" class="flex items-center justify-center gap-3 py-4 flex-wrap">
                 <!-- Visual shell cylinders -->
             </div>
             <div id="loadModalCountsText" class="text-lg font-mono-tech font-bold text-amber-300">
-                3 ĐẠN THẬT (ĐỎ) • 3 ĐẠN GIẢ (XANH)
+                1–3 ĐẠN THẬT • CÒN LẠI LÀ ĐẠN GIẢ
             </div>
             <button onclick="closeShellLoadModal()" class="w-full py-3.5 rounded-2xl font-extrabold text-sm uppercase tracking-wider bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-lg">
                 ĐÃ NHỚ! BẮT ĐẦU XOAY VÒNG BẮN
@@ -1219,7 +1189,7 @@
                 <!-- QR Code Box -->
                 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 flex flex-col items-center text-center space-y-3">
                     <div id="qrcodeCanvas" class="bg-white p-3 rounded-2xl shadow-lg"></div>
-                    <div class="text-xs font-mono-tech text-cyan-400" id="qrStatusText">Đang khởi tạo mã phòng PeerJS...</div>
+                    <div class="text-xs font-mono-tech text-cyan-400" id="qrStatusText">Đang kết nối máy chủ WebSocket...</div>
                     <div id="qrNetworkHelp" class="w-full rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-left text-[11px] leading-relaxed text-amber-100">Đang kiểm tra môi trường kết nối...</div>
                     <div class="w-full flex items-center gap-2">
                         <input id="qrShareUrlInput" type="text" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono-tech text-slate-300" value="">
@@ -1821,11 +1791,14 @@
             state.round = 1;
             state.turnIndex = 0;
             state.direction = 1;
+            state.reloadPending = false;
+            state.chamberLoadedCount = 6;
             state.sawedOff = false;
             state.busyAnimating = false;
             state.started = false;
             state.phase = 'LOBBY';
             state.chamber = [];
+            state.reloadPending = false;
             state.eliminationOrder = [];
             state.winnerRecorded = false;
             document.getElementById('qualifierHostPanel').classList.add('hidden');
@@ -1841,16 +1814,11 @@
         }
 
         /* ============================================================================
-           2. 5 LOẠI VẬT PHẨM (Mỗi người tối đa 4 món)
+           2. VẬT PHẨM ĐÃ ĐƯỢC TẮT TRONG CHẾ ĐỘ HIỆN TẠI
            ============================================================================ */
-        const MAX_ITEMS = 4; // Mỗi người chỉ được giữ tối đa 4 vật phẩm
-        const ITEM_TYPES = [
-            { id: "magnifier", icon: "🔍", cn: "放大镜", vn: "Kính Lúp", desc: "Xem bí mật viên đạn hiện tại trong buồng súng" },
-            { id: "tea",       icon: "🍵", cn: "浓茶",   vn: "Trà Nóng",  desc: "Hồi ngay +1 Máu (Tối đa 5 máu)" },
-            { id: "saw",       icon: "🪚", cn: "手锯",   vn: "Cưa Sắt",  desc: "Cưa nòng súng, phát bắn tiếp theo gây 2 sát thương" },
-            { id: "beer",      icon: "🍺", cn: "啤酒",   vn: "Lon Bia",  desc: "Lên quy-lát văng bỏ viên đạn hiện tại ra ngoài" },
-            { id: "cuffs",     icon: "⛓️", cn: "手铐",   vn: "Còng Tay", desc: "Chọn khóa lượt kế tiếp của 1 người chơi bất kỳ" },
-        ];
+        // Chế độ mới không có vật phẩm hoặc túi đồ.
+        const MAX_ITEMS = 0;
+        const ITEM_TYPES = [];
 
         /* ============================================================================
            3. WEB AUDIO API PROCEDURAL SOUND SYNTHESIZER
@@ -1969,8 +1937,9 @@
             phase: 'COMBAT', // 'COMBAT' | 'QUIZ' | 'GAMEOVER'
             turnIndex: 0,
             direction: 1, // Chiều lượt cố định theo chiều kim đồng hồ
-            chamber: [], // 20 viên; true = đạn thật, false = đạn giả
-            chamberLoadedCount: 20,
+            chamber: [], // 6 viên; true = đạn thật, false = đạn giả
+            chamberLoadedCount: 6,
+            reloadPending: false,
             sawedOff: false,
             showPinyin: true,
             simulatedSeatMode: 'auto', // 'auto' or 0..5
@@ -2007,17 +1976,13 @@
                 else if (preset === '3p3ai') isAI = (i >= 3);
                 else isAI = false;
 
-                // Each player starts with 4 random items by default in Round 1
-                const defaultFourItems = [];
-                for (let k = 0; k < MAX_ITEMS; k++) defaultFourItems.push(randomItem());
-
                 players.push({
                     index: i,
                     name: isAI ? 'Máy AI' : `Người chơi G${String(i + 1).padStart(2, '0')}`,
                     isAI: isAI,
-                    hp: 5,
-                    maxHp: 5,
-                    items: defaultFourItems,
+                    hp: 1,
+                    maxHp: 1,
+                    items: [],
                     cuffed: false,
                     cuffTurns: 0,
                     connectedPeerId: null,
@@ -2032,9 +1997,8 @@
            ============================================================================ */
         function generateChamberLoad(showModal = true) {
             if (state.loadTimerId) clearTimeout(state.loadTimerId);
-            // Mỗi lần nạp luôn có đúng 20 viên; tỷ lệ thật/giả được chọn ngẫu nhiên 5–15 viên thật.
-            const total = 20;
-            const liveCount = Math.floor(Math.random() * 11) + 5;
+            const total = 6;
+            const liveCount = 1 + Math.floor(Math.random() * 3); // 1, 2 hoặc 3 đạn thật
             const blankCount = total - liveCount;
             const unshuffled = [
                 ...Array(liveCount).fill(true),
@@ -2046,23 +2010,23 @@
             }
             state.chamber = unshuffled;
             state.chamberLoadedCount = total;
+            state.reloadPending = false;
             state.sawedOff = false;
             clearAllSecretPeeks();
             playSound('rack');
             renderAll();
-            setLog(`🔄 Đã nạp đủ 20 viên: ${liveCount} đạn thật và ${blankCount} đạn giả. Hãy ghi nhớ trước khi bắt đầu!`);
+            setLog(`🔄 Đã nạp 6 viên: ${liveCount} đạn thật và ${blankCount} đạn giả. Hãy chọn mục tiêu!`);
 
             if (showModal) {
                 const modal = document.getElementById('shellLoadModal');
-                document.getElementById('loadModalTitle').textContent = `NẠP ĐẠN VÒNG ${state.round}`;
-                document.getElementById('loadModalCountsText').textContent = `${liveCount} ĐẠN THẬT (ĐỎ) • ${blankCount} ĐẠN GIẢ (XANH) • TỔNG 20 VIÊN`;
+                document.getElementById('loadModalTitle').textContent = `BĂNG ĐẠN SỐ ${state.round}`;
+                document.getElementById('loadModalCountsText').textContent = `${liveCount} ĐẠN THẬT (ĐỎ) • ${blankCount} ĐẠN GIẢ (XANH) • TỔNG 6 VIÊN`;
                 const visuals = document.getElementById('loadModalShellVisuals');
                 visuals.innerHTML = '';
                 unshuffled.forEach((isLive, index) => {
-                    visuals.innerHTML += `<div class="w-5 h-12 rounded-md ${isLive ? 'bg-gradient-to-b from-amber-300 via-rose-600 to-rose-900 border-rose-300' : 'bg-gradient-to-b from-amber-300 via-cyan-600 to-slate-900 border-cyan-300'} border-2 shadow-lg flex items-end justify-center pb-1 text-[8px] font-mono-tech font-bold text-white" title="Viên ${index + 1}">${isLive ? 'T' : 'G'}</div>`;
+                    visuals.innerHTML += `<div class="w-5 h-12 rounded-md ${isLive ? 'bg-gradient-to-b from-amber-300 via-rose-600 to-rose-900 border-rose-300' : 'bg-gradient-to-b from-amber-300 via-cyan-600 to-slate-900 border-cyan-300'} border-2 shadow-lg flex items-end justify-center pb-1 text-[8px] font-bold text-white" title="Viên ${index + 1}">${isLive ? 'T' : 'G'}</div>`;
                 });
                 modal.classList.remove('hidden');
-                // Công khai tỷ lệ thật/giả trong 4 giây rồi tự niêm phong buồng đạn.
                 state.loadTimerId = setTimeout(() => {
                     if (!modal.classList.contains('hidden')) closeShellLoadModal();
                 }, 4000);
@@ -2079,36 +2043,34 @@
         }
 
         function getTotalRemainingItems() {
-            // Chỉ tính vật phẩm của người còn sống; vật phẩm của người đã bị loại rời khỏi bàn.
-            return state.players.reduce((sum, player) => sum + (player.hp > 0 ? player.items.length : 0), 0);
+            return 0;
         }
 
         function renderSupplyAndShells() {
-            const remaining = getTotalRemainingItems();
-            const countEl = document.getElementById('uiItemsRemaining');
-            if (countEl) countEl.textContent = `${remaining} / 24 MÓN`;
             const tray = document.getElementById('uiShellStrip');
             if (tray) {
                 const used = Math.max(0, state.chamberLoadedCount - state.chamber.length);
-                tray.innerHTML = Array.from({ length: 20 }, (_, i) => {
+                tray.innerHTML = Array.from({ length: 6 }, (_, i) => {
                     const cls = i < used ? 'used' : (i === used && state.chamber.length ? 'next' : 'remaining');
-                    return `<span class="shell-pip ${cls}" title="Vỏ đạn ${i + 1}"></span>`;
+                    return `<span class="shell-pip ${cls}" title="Viên đạn ${i + 1}"></span>`;
                 }).join('');
                 const counter = document.getElementById('uiShellStripCount');
-                if (counter) counter.textContent = `${state.chamber.length} / 20 CÒN LẠI`;
+                if (counter) counter.textContent = `${state.chamber.length} / 6 CÒN LẠI`;
             }
         }
 
         function handleSupplyOrAmmoTransition() {
             if (!state.started || state.phase !== 'COMBAT' || state.busyAnimating) return false;
-            if (getTotalRemainingItems() === 0) {
-                startRoundTransitionQuizPhase();
-                return true;
-            }
-            if (state.chamber.length === 0) {
-                setLog('🔄 Đã bắn hết 20 viên nhưng vật phẩm vẫn còn. Tự động nạp băng 20 viên mới!');
+            if (state.chamber.length === 0 && !state.reloadPending) {
+                state.reloadPending = true;
+                setLog('🔄 Đã bắn hết 6 viên. Đang nạp băng 6 viên mới...');
                 setTimeout(() => {
-                    if (state.phase === 'COMBAT' && state.chamber.length === 0) generateChamberLoad(true);
+                    if (state.phase === 'COMBAT' && state.started && state.chamber.length === 0) {
+                        state.round++;
+                        generateChamberLoad(true);
+                    } else {
+                        state.reloadPending = false;
+                    }
                 }, 650);
                 return true;
             }
@@ -2144,7 +2106,7 @@
         }
 
         /* ============================================================================
-           6. ITEM USAGE MECHANICS (5 ITEM TYPES · 4 SLOTS PER PLAYER)
+           6. CÁC HÀM VẬT PHẨM CŨ ĐƯỢC GIỮ Ở TRẠNG THÁI KHÔNG HOẠT ĐỘNG
            ============================================================================ */
         function applyHandcuff(target) {
             if (!target || target.hp <= 0) return false;
@@ -2283,7 +2245,7 @@
 
             setTimeout(() => {
                 const isLive = state.chamber.shift();
-                const dmg = state.sawedOff ? 2 : 1;
+                const dmg = 1;
                 triggerShellEjectVisual(isLive);
 
                 if (isLive) {
@@ -2301,12 +2263,9 @@
                     target.hp = Math.max(0, target.hp - dmg);
                     if (target.hp === 0) {
                         if (!state.eliminationOrder.includes(target.index)) state.eliminationOrder.push(target.index);
-                        const discarded = target.items.length;
                         target.items = [];
                         target.secretPeekText = null;
-                        setLog(`💥 ĐOÀNG! ${target.name} bị loại khỏi bàn. ${discarded ? discarded + ' vật phẩm của ghế này bị thu hồi.' : ''}`);
-                    } else {
-                        setLog(`💥 ĐOÀNG! ĐẠN THẬT! ${target.name} mất ${dmg} Máu (Còn ${target.hp}/5)!`);
+                        setLog(`💥 ĐOÀNG! ${target.name} bị loại khỏi bàn!`);
                     }
 
                     setTimeout(() => {
@@ -2333,7 +2292,7 @@
                     state.busyAnimating = false;
                     if (checkVictoryCondition()) return;
 
-                    // Xác định lượt kế tiếp trước khi nạp lại băng, để lượt không bị reset khi hết 20 viên.
+                    // Xác định lượt kế tiếp trước khi nạp băng mới.
                     const keepTurn = !isLive && shooterIndex === targetIndex && shooter.hp > 0;
                     if (!keepTurn) advanceToNextLivingPlayer(false);
                     if (handleSupplyOrAmmoTransition()) return;
@@ -2868,7 +2827,7 @@
             // Top Arena Info
             document.getElementById('uiRoundNum').textContent = `VÒNG ${state.round}`;
             document.getElementById('uiShellsRemaining').innerHTML =
-                `<span class="text-amber-300">▰ ${state.chamber.length} / 20 viên còn lại</span>`;
+                `<span class="text-amber-300">▰ ${state.chamber.length} / 6 viên còn lại</span>`;
             renderSupplyAndShells();
 
             document.getElementById('uiTurnDirection').textContent =
@@ -2884,7 +2843,7 @@
             if (barrelEl) barrelEl.setAttribute('width', state.sawedOff ? '78' : '132');
             const dmgBadge = document.getElementById('uiGunDamageBadge');
             if (dmgBadge) {
-                dmgBadge.textContent = state.sawedOff ? '🔥 SÁT THƯƠNG: 2 MÁU (CƯA NÒNG)' : 'SÁT THƯƠNG: 1 MÁU';
+                dmgBadge.textContent = 'SÁT THƯƠNG: 1 TIM';
                 dmgBadge.className = state.sawedOff
                     ? 'px-3 py-0.5 rounded-full text-xs font-mono-tech font-bold bg-rose-600 text-white animate-pulse'
                     : 'px-3 py-0.5 rounded-full text-xs font-mono-tech font-bold bg-slate-900/90 border border-slate-700 text-slate-300';
@@ -2922,8 +2881,6 @@
                         </div>
                         <div class="seat-portrait portrait-${idx}" aria-label="Nhân vật tại ${profile.code}"></div>
                         <div class="seat-health">${heartsHtml}</div>
-                        <div class="flex items-center justify-between gap-1 mb-1"><span class="text-[10px] font-mono-tech text-slate-400">VẬT PHẨM ${p.items.length}/${MAX_ITEMS}</span>${p.cuffed ? '<span class="seat-lock-badge">⛓️ BỊ CÒNG</span>' : ''}</div>
-                        <div class="seat-items">${itemsHtml}</div>
                         <div class="flex items-center justify-between gap-2 mt-2"><span class="text-[10px] font-mono-tech ${isDead ? 'text-rose-400' : (isTurn ? 'text-amber-300' : 'text-slate-500')}">${isDead ? 'ĐÃ BỊ LOẠI' : (isTurn ? 'ĐANG ĐẾN LƯỢT' : 'ĐANG CHỜ')}</span>
                             ${state.started && !isDead && state.turnIndex !== idx ? `<button onclick="executeShot(${state.turnIndex}, ${idx})" class="seat-fire-btn">🎯 BẮN</button>` : ''}
                         </div>
@@ -2937,7 +2894,7 @@
             if (simPlayer) {
                 document.getElementById('simSeatName').textContent = `${simPlayer.name.toUpperCase()} (GHẾ ${simIdx + 1})`;
                 document.getElementById('simSeatRole').textContent =
-                    `${state.turnIndex === simIdx ? '🔥 Đang cầm lượt' : 'Đang chờ lượt'} • ${simPlayer.items.length}/${MAX_ITEMS} Vật phẩm`;
+                    `${state.turnIndex === simIdx ? '🔥 Đang cầm lượt' : 'Đang chờ lượt'} • ${simPlayer.hp > 0 ? 'Còn sống' : 'Đã bị loại'}`;
 
                 let simHearts = '';
                 for (let h = 0; h < simPlayer.maxHp; h++) {
@@ -3042,7 +2999,7 @@
         function peerErrorMessage(err) {
             const code = err && err.type ? err.type : 'unknown';
             const messages = {
-                'browser-incompatible': 'Trình duyệt không hỗ trợ kết nối WebRTC. Hãy dùng Chrome hoặc Edge mới.',
+                'browser-incompatible': 'Trình duyệt không hỗ trợ WebSocket. Hãy dùng Chrome, Edge hoặc Safari phiên bản mới.',
                 'network': 'Không kết nối được máy chủ WebSocket /ws. Kiểm tra kết nối Internet và cấu hình Netlify Server.',
                 'peer-unavailable': 'Không tìm thấy phòng. Hãy quét lại mã QR mới nhất trên Laptop.',
                 'unavailable-id': 'Mã phòng bị trùng. Hãy tải lại trang Laptop để tạo mã mới.',
@@ -3050,10 +3007,10 @@
                 'server-error': 'Máy chủ chuyển tiếp đang lỗi hoặc chưa được triển khai.',
                 'socket-error': 'Kết nối tín hiệu bị lỗi. Hãy thử lại.',
                 'socket-closed': 'Kết nối tới máy chủ tín hiệu đã đóng. Hãy thử lại.',
-                'webrtc': 'Hai thiết bị không thiết lập được đường truyền trực tiếp. Thử cùng Wi-Fi hoặc mạng khác.',
+                'webrtc': 'Không thiết lập được kết nối qua máy chủ WebSocket /ws. Hãy kiểm tra máy chủ và thử kết nối lại.',
                 'ssl-unavailable': 'Máy chủ tín hiệu không hỗ trợ kết nối bảo mật cần thiết.'
             };
-            return messages[code] || `Lỗi kết nối chuyển tiếp: ${code}. Hệ thống đang thử kết nối lại.`;
+            return messages[code] || `Lỗi kết nối WebSocket: ${code}. Hệ thống đang thử kết nối lại.`;
         }
 
         function initHostPeerServer() {
@@ -3063,7 +3020,7 @@
                     if (status) status.textContent = 'Không tải được relay.js. Hãy tải lại trang hoặc kiểm tra bản triển khai Netlify.';
                     return;
                 }
-                // Để PeerServer cấp ID duy nhất: tránh trùng mã khi tự đặt ID ngẫu nhiên.
+                // Để máy chủ Relay cấp mã phòng duy nhất cho Laptop.
                 hostPeer = new Peer(undefined, { debug: 2, config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] } });
                 hostPeer.on('open', (id) => {
                     hostRoomId = id;
@@ -3119,7 +3076,7 @@
                         handleIncomingPhoneAction(conn.peer, data);
                     });
                     conn.on('error', (err) => {
-                        console.warn('PeerJS data connection error:', err);
+                        console.warn('Relay data connection error:', err);
                         setLog(`⚠️ Kết nối điện thoại gặp lỗi: ${peerErrorMessage(err)}`);
                     });
                     conn.on('close', () => {
@@ -3135,11 +3092,11 @@
                 hostPeer.on('error', (err) => {
                     const status = document.getElementById('qrStatusText');
                     if (status) status.textContent = peerErrorMessage(err);
-                    console.warn('PeerJS host error:', err);
+                    console.warn('Relay host error:', err);
                     updateQrModalCode();
                 });
             } catch (err) {
-                console.warn('PeerJS host initialization failed:', err);
+                console.warn('Relay host initialization failed:', err);
                 const status = document.getElementById('qrStatusText');
                 if (status) status.textContent = `Không khởi tạo được phòng: ${err.message || err}`;
             }
@@ -3172,7 +3129,7 @@
                 renderAll();
                 broadcastStateToPhones();
             } else if (payload.type === 'USE_ITEM') {
-                usePlayerItem(seatIdx, payload.slot, payload.target);
+                return; // Chế độ hiện tại đã bỏ toàn bộ vật phẩm.
             } else if (payload.type === 'SHOOT') {
                 executeShot(seatIdx, payload.target);
             } else if (payload.type === 'QUIZ_ANSWER') {
@@ -3344,7 +3301,7 @@
                     conn.on('error', (err) => {
                         if (connectionTimer) clearTimeout(connectionTimer);
                         setStatus(peerErrorMessage(err), 'rose');
-                        console.warn('PeerJS mobile data connection error:', err);
+                        console.warn('Relay mobile data connection error:', err);
                     });
                     conn.on('close', () => {
                         if (connectionTimer) clearTimeout(connectionTimer);
@@ -3358,7 +3315,7 @@
                 clientPeer.on('error', (err) => {
                     if (connectionTimer) clearTimeout(connectionTimer);
                     setStatus(peerErrorMessage(err), 'rose');
-                    console.warn('PeerJS mobile error:', err);
+                    console.warn('Relay mobile error:', err);
                 });
             } catch (e) {
                 console.warn('Mobile connection initialization failed:', e);
@@ -3490,7 +3447,7 @@
                 document.getElementById('mobNameFeedback').textContent = `Bạn đang điều khiển Ghế ${data.seatIndex + 1}. Hãy tự đặt tên hiển thị.`;
             }
             document.getElementById('mobPlayerTitle').textContent = `${(p.name || `GHẾ ${String(p.index + 1).padStart(2, '0')}`).toUpperCase()} (GHẾ #${p.index + 1})`;
-            document.getElementById('mobConnStatus').textContent = `Vật phẩm toàn bàn: ${data.totalItemsRemaining ?? '—'}/24 · Đạn còn: ${data.shellsRemaining ?? '—'}/20`;
+            document.getElementById('mobConnStatus').textContent = `Đạn còn: ${data.shellsRemaining ?? '—'}/6`;
             let hpHtml = '';
             for (let i = 0; i < p.maxHp; i++) {
                 hpHtml += `<span class="${i < p.hp ? 'text-rose-500' : 'text-slate-700'} text-xl leading-none">♥</span>`;
@@ -3535,37 +3492,7 @@
                 const turnBanner = document.getElementById('mobTurnBanner');
                 turnBanner.textContent = data.phase === 'LOBBY'
                     ? '🕒 ĐÃ VÀO PHÒNG · ĐANG CHỜ CHỦ PHÒNG BẮT ĐẦU TRẬN'
-                    : (isMyTurn ? "🔥 ĐẾN LƯỢT CỦA BẠN! HÃY CHỌN ĐỒ HOẶC BÓP CÒ" : `⏳ Đang chờ lượt của Ghế #${data.turnIndex + 1}...`);
-
-                document.getElementById('mobItemCount').textContent = `${p.items.length}/${MAX_ITEMS}`;
-                const itemTarget = document.getElementById('mobItemTargetSelect');
-                itemTarget.innerHTML = '';
-                (data.allPlayersSummary || []).forEach(tp => {
-                    if (tp.hp <= 0) return;
-                    const option = document.createElement('option');
-                    option.value = String(tp.index);
-                    option.textContent = `${tp.name || `Ghế ${tp.index + 1}`} · ${tp.hp} trái tim`;
-                    itemTarget.appendChild(option);
-                });
-                if (!itemTarget.options.length) {
-                    const option = document.createElement('option'); option.value = '-1'; option.textContent = 'Không có mục tiêu'; itemTarget.appendChild(option);
-                }
-                const itemsGrid = document.getElementById('mobItemsGrid');
-                itemsGrid.innerHTML = '';
-                for (let s = 0; s < MAX_ITEMS; s++) {
-                    const it = p.items[s];
-                    if (it) {
-                        itemsGrid.innerHTML += `
-                            <button onclick="mobileSendAction({type:'USE_ITEM', slot:${s}, target:Number(document.getElementById('mobItemTargetSelect').value)})" ${!isMyTurn ? 'disabled' : ''}
-                                class="p-3 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col items-center ${!isMyTurn ? 'opacity-50' : 'active:scale-95'}">
-                                <span class="text-2xl">${it.icon}</span>
-                                <span class="text-xs font-bold text-white mt-1">${it.vn}</span>
-                            </button>
-                        `;
-                    } else {
-                        itemsGrid.innerHTML += `<div class="p-3 rounded-2xl bg-slate-900/40 border border-dashed border-slate-800 h-20 flex items-center justify-center text-xs text-slate-600">Trống</div>`;
-                    }
-                }
+                    : (isMyTurn ? "🔥 ĐẾN LƯỢT CỦA BẠN! HÃY CHỌN MỤC TIÊU VÀ BÓP CÒ" : `⏳ Đang chờ lượt của Ghế #${data.turnIndex + 1}...`);
 
                 const targetsGrid = document.getElementById('mobShootTargetsGrid');
                 targetsGrid.innerHTML = '';
@@ -3716,6 +3643,8 @@
             state.started = false;
             state.phase = 'LOBBY';
             state.chamber = [];
+            state.reloadPending = false;
+            state.chamberLoadedCount = 6;
             renderAll();
             renderQrSeatsList();
             updateConnectedPhonesBadge();
