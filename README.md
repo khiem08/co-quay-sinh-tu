@@ -1,23 +1,21 @@
-# Cò Quay Sinh Tử — WebSocket relay deployment
+# Cò Quay Sinh Tử — WebSocket Relay
 
-## Deploy
-1. Upload this whole folder/repository to GitHub (do not upload only `index.html`).
-2. In Netlify, import the repository and set the base directory to the project root.
-3. Enable **Netlify Server** for the site/account (Early Access feature, if available on the plan).
-4. Deploy. Static files come from `public/`; the long-lived server in `netlify/server/index.mjs` handles `wss://YOUR-SITE.netlify.app/ws`.
-5. Open the HTTPS site on the laptop, open the Quiz HSK lobby and use the single QR code. Test with two phones, including one on mobile data.
+## Triển khai
+1. Đưa toàn bộ nội dung thư mục này lên GitHub (không chỉ tải riêng `index.html`).
+2. Trên Netlify, import repository và giữ thư mục gốc làm Base directory.
+3. Bật Netlify Server cho site/tài khoản nếu gói được hỗ trợ.
+4. Deploy. Tệp tĩnh nằm trong `public/`; máy chủ ở `netlify/server/index.mjs` xử lý WebSocket tại `/ws`.
+5. Mở trang HTTPS trên Laptop, mở phòng Quiz HSK và dùng QR chung. Thử ít nhất một điện thoại Wi-Fi và một điện thoại 4G/5G.
 
-## Important limits
-- This is a real WebSocket relay, not WebRTC; clients do not need a direct peer connection or TURN server.
-- Room/participant state is currently held in the Netlify Server instance's memory. Netlify Server is currently Early Access and instance count/availability depends on plan. Keep this as a single-instance deployment for one live game room; do not enable multiple instances unless shared room state/pub-sub is added.
-- Browser reload of the host still creates a new game session. A dropped phone connection can reconnect for up to 45 seconds; the host room is retained for up to 2 minutes after a host socket interruption, while the process remains alive.
-- The app itself has no fixed quiz participant cap, but capacity depends on the Netlify Server plan, instance limits, network, and device performance. Test the expected audience before the event.
+## Luật Cò Quay Sinh Tử hiện tại
+- Mỗi người chơi bắt đầu với 1 tim. Trúng đạn thật sẽ mất tim và bị loại; đạn giả không gây sát thương.
+- Không còn vật phẩm.
+- Mỗi băng có 6 viên; ngẫu nhiên 1, 2 hoặc 3 viên đạn thật, còn lại là đạn giả. Thứ tự được xáo trộn và giữ bí mật.
+- Mỗi người còn sống chỉ được bắn đúng 1 lần trong một vòng. Sau phát bắn, lượt chuyển sang người còn sống tiếp theo, kể cả khi vừa bắn đạn giả hoặc tự bắn.
+- Khi tất cả người còn sống đã bắn xong, các điện thoại hiển thị một câu hỏi HSK nhanh. Mỗi người còn sống có một lần trả lời. Người trả lời đúng đầu tiên được xem riêng trạng thái viên đạn kế tiếp (đạn thật hay đạn giả). Thông tin này chỉ hiển thị trên điện thoại của người thắng và bị xóa sau phát bắn kế tiếp.
+- Sau câu hỏi, bắt đầu vòng bắn mới với những người còn sống.
 
-
-## Luật chơi hiện tại
-- Mỗi người chơi bắt đầu với đúng **1 trái tim**; trúng đạn thật sẽ bị loại ngay.
-- Không có vật phẩm, túi đồ hoặc phần tiếp tế vật phẩm.
-- Mỗi băng có đúng **6 viên**. Mỗi lần nạp ngẫu nhiên **1, 2 hoặc 3 viên đạn thật**; số còn lại là đạn giả. Thứ tự đạn được xáo trộn.
-- Khi hết 6 viên, trò chơi tự nạp băng mới.
-- Đến lượt của mình, người chơi có thể chọn bất kỳ người còn sống nào làm mục tiêu; vẫn có thể tự bắn mình. Bắn đạn giả vào chính mình thì giữ lượt như luật cũ.
-- Giao diện sử dụng font hệ thống dễ đọc, có fallback cho tiếng Việt và chữ Trung.
+## Giới hạn triển khai
+- Kết nối điện thoại dùng WebSocket relay tại `/ws`, không dùng WebRTC và không cần TURN.
+- Trạng thái phòng/người chơi được lưu trong bộ nhớ của một Netlify Server instance. Giữ một instance cho một phòng chơi; không bật nhiều instance nếu chưa bổ sung cơ chế đồng bộ trạng thái.
+- Khả năng kết nối đồng thời phụ thuộc vào gói Netlify Server, giới hạn instance, mạng và thiết bị. Cần thử nghiệm với quy mô dự kiến trước khi tổ chức thật.

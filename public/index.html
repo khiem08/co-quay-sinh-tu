@@ -37,13 +37,7 @@
             font-family: 'Noto Sans SC', sans-serif;
         }
 
-        /* Scanlines & CRT Gritty Industrial Vibe */
-        .crt-overlay {
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 6px 100%;
-            pointer-events: none;
-        }
+        /* Đã bỏ lớp CRT/scanline gây họa tiết lưới trên toàn màn hình. */
 
         /* Table Felts & Industrial Metal Rings */
         .roulette-table {
@@ -252,7 +246,7 @@
 
         /* ===== CHẾ ĐỘ CHỈ XEM: CHỈ GIỮ LẠI ĐẤU TRƯỜNG 6 GHẾ ===== */
         body.spectator-view { overflow:hidden; background:#030609; }
-        body.spectator-view #ambientFX, body.spectator-view .crt-overlay { opacity:.55; }
+        body.spectator-view #ambientFX { opacity:.55; }
         body.spectator-view #hostMainView header,
         body.spectator-view #hostMainView > main > div:last-child,
         body.spectator-view #arenaLogBar { display:none !important; }
@@ -683,14 +677,14 @@
         #mobileClientView.quiz-eliminated-lock #mobPreQuizDone { display:block!important; border-color:#d6a94f; }
         #mobileClientView.quiz-eliminated-lock #mobPreQuizStatus { color:#fbbf24!important; }
 
-        /* Font chữ hệ thống dễ đọc, có bộ ký tự tiếng Việt và tiếng Trung. */
+        /* Font hệ thống rõ ràng, tránh phụ thuộc Google Fonts; có fallback CJK cho chữ Trung. */
         html, body, body * {
-            font-family: Arial, "Segoe UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important;
+            font-family: Arial, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", "SimSun", sans-serif !important;
             font-synthesis: none;
         }
         /* Ẩn toàn bộ giao diện và khu vực điều khiển vật phẩm cũ. */
         .seat-items, #mobItemsGrid, #simItemsGrid, #mobItemTargetSelect,
-        #mobItemCount, #simSecretBox, #mobSecretBanner,
+        #mobItemCount, #simSecretBox,
         #quizPlayerItemsPreview, #quizRewardPreviewBadge,
         #uiItemsRemaining, #mobItemTargetSelect, #simItemsGrid {
             display:none !important;
@@ -701,8 +695,7 @@
 <body class="min-h-screen flex flex-col justify-between relative selection:bg-rose-600 selection:text-white">
     <div id="ambientFX" aria-hidden="true"></div>
 
-    <!-- CRT Scanline Overlay -->
-    <div class="fixed inset-0 crt-overlay z-50"></div>
+    <!-- Lớp CRT/scanline đã được gỡ để nền phẳng, dễ đọc. -->
 
     <!-- Red Flash Damage Overlay -->
     <div id="damageFlashOverlay" class="fixed inset-0 bg-red-600/40 pointer-events-none opacity-0 transition-opacity duration-300 z-40"></div>
@@ -761,8 +754,8 @@
         <div class="my-3 flex-1 flex flex-col justify-center">
             <!-- Secret Peek Notification Banner -->
             <div id="mobSecretBanner" class="hidden mb-3 p-3.5 rounded-2xl border-2 border-cyan-500 bg-cyan-950/80 text-center shadow-lg">
-                <div class="text-xs uppercase font-mono-tech text-cyan-300">KẾT QUẢ KÍNH LÚP BÍ MẬT</div>
-                <div id="mobSecretText" class="text-xl font-extrabold text-white mt-1">VIÊN HIỆN TẠI: ĐẠN THẬT!</div>
+                <div class="text-xs uppercase font-mono-tech text-cyan-300">QUYỀN XEM VIÊN ĐẠN KẾ TIẾP</div>
+                <div id="mobSecretText" class="text-xl font-extrabold text-white mt-1">VIÊN KẾ TIẾP: ĐẠN THẬT!</div>
             </div>
 
             <!-- STATE A: COMBAT CONTROLLER -->
@@ -782,7 +775,7 @@
                     <div class="text-xs font-mono-tech text-slate-400 uppercase text-center">CHỌN MỤC TIÊU VÀ BÓP CÒ</div>
                     <button id="mobShootSelfBtn" onclick="mobileSendAction({type:'SHOOT', target: mobileState.seatIndex})"
                         class="w-full py-3.5 px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
-                        <span>🛡️ TỰ BẮN MÌNH (Đạn giả = Giữ lượt)</span>
+                        <span>🛡️ TỰ BẮN MÌNH</span>
                     </button>
                     <div class="text-xs font-mono-tech text-slate-400 uppercase text-center pt-1">HOẶC BẮN MỤC TIÊU KHÁC:</div>
                     <div id="mobShootTargetsGrid" class="grid grid-cols-3 gap-2">
@@ -794,8 +787,12 @@
             <!-- STATE B: QUIZ A/B/C/D PAD -->
             <div id="mobQuizPanel" class="hidden space-y-3">
                 <div class="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3 text-center">
-                    <div class="text-xs font-mono-tech text-amber-300 uppercase">NHÌN CÂU HỎI TRÊN MÀN HÌNH CHỦ LAPTOP</div>
+                    <div id="mobQuizHeaderLabel" class="text-xs font-mono-tech text-amber-300 uppercase">NHÌN CÂU HỎI TRÊN MÀN HÌNH CHỦ LAPTOP</div>
                     <div id="mobQuizMeta" class="text-lg font-extrabold text-white mt-0.5">CÂU HỎI 1 / 3 (60 GIÂY)</div>
+                </div>
+                <div id="mobRoundQuickQuestion" class="hidden rounded-2xl border border-amber-400/40 bg-slate-950/90 p-4 text-center">
+                    <div id="mobRoundQuickPrompt" class="text-xl font-bold leading-relaxed text-white"></div>
+                    <div id="mobRoundQuickPinyin" class="text-sm text-amber-300 mt-2"></div>
                 </div>
                 <div id="mobQuizButtons" class="grid grid-cols-1 gap-3">
                     <!-- A, B, C, D massive Kahoot-style buttons -->
@@ -833,7 +830,7 @@
                         <h1 class="font-extrabold text-lg tracking-tight text-white uppercase">CÒ QUAY SINH TỬ</h1>
                         <span class="text-xs font-mono-tech px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold">HSK 3 • ĐẤU TRƯỜNG 6 NGƯỜI</span>
                     </div>
-                    <p class="text-xs text-slate-400">Mỗi người có 1 trái tim • Súng có 6 viên đạn • Mỗi băng ngẫu nhiên 1–3 đạn thật</p>
+                    <p class="text-xs text-slate-400">Mỗi người 1 tim • Mỗi vòng bắn 1 lần/người • Cuối vòng có câu hỏi nhanh để xem viên đạn kế tiếp</p>
                 </div>
             </div>
 
@@ -1040,7 +1037,7 @@
                         <div class="text-[11px] font-mono-tech text-slate-400 uppercase text-center">CHỌN MỤC TIÊU BÓP CÒ</div>
                         <button id="simShootSelfBtn" onclick="handlePlayerShootSelf()"
                             class="w-full py-2.5 px-3 rounded-xl font-extrabold text-xs uppercase tracking-wider bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white shadow-md active:scale-95 transition">
-                            🛡️ TỰ BẮN MÌNH (Nếu đạn giả được bắn tiếp)
+                            🛡️ TỰ BẮN MÌNH (sau đó chuyển lượt)
                         </button>
                         <div id="simTargetsGrid" class="grid grid-cols-3 gap-1.5 pt-1">
                             <!-- Buttons for seats 1..6 -->
@@ -1308,6 +1305,26 @@
             <p class="text-sm text-slate-300 mt-2">Đang đưa người chơi vào Cò Quay Sinh Tử</p>
             <div class="qualifier-transition-ring"><div id="qualifierHostTransitionCounter" class="qualifier-transition-number">3</div></div>
             <div id="qualifierHostTransitionNames" class="text-sm text-amber-100 leading-relaxed">Đang chuẩn bị danh sách người chơi...</div>
+        </div>
+    </div>
+
+    <!-- CÂU HỎI NHANH CUỐI VÒNG: người trả lời đúng đầu tiên được xem viên đạn kế tiếp. -->
+    <div id="roundQuickQuizModal" class="hidden fixed inset-0 z-[180] bg-black/90 backdrop-blur-md items-center justify-center p-4">
+        <div class="w-full max-w-3xl rounded-3xl border-2 border-amber-400/70 bg-slate-950 shadow-2xl p-5 md:p-8 space-y-5">
+            <div class="text-center">
+                <div class="text-xs md:text-sm font-black tracking-[.2em] text-amber-300">⚡ THỬ THÁCH NHANH CUỐI VÒNG</div>
+                <h2 id="roundQuickQuizTitle" class="text-2xl md:text-3xl font-black text-white mt-2">AI TRẢ LỜI ĐÚNG NHANH NHẤT?</h2>
+                <p class="text-sm text-slate-300 mt-2">Tất cả người chơi còn sống trả lời trên điện thoại, mỗi người chỉ có một lần chọn. Người đầu tiên trả lời đúng được xem riêng viên đạn kế tiếp; thông tin chỉ có hiệu lực cho phát bắn kế tiếp.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-900/90 p-5 text-center">
+                <div id="roundQuickQuizPrompt" class="text-xl md:text-3xl font-bold leading-relaxed text-white"></div>
+                <div id="roundQuickQuizPinyin" class="text-sm md:text-base text-amber-300 mt-3"></div>
+            </div>
+            <div id="roundQuickQuizChoices" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-4">
+                <div id="roundQuickQuizStatus" class="text-sm font-bold text-slate-200" aria-live="polite">Đang chờ câu trả lời...</div>
+                <div id="roundQuickQuizTimer" class="text-2xl font-black text-amber-300">15s</div>
+            </div>
         </div>
     </div>
 
@@ -1791,6 +1808,9 @@
             state.round = 1;
             state.turnIndex = 0;
             state.direction = 1;
+            state.roundPending = [];
+            state.roundQuiz = null;
+            state.roundQuizUsedIds = [];
             state.reloadPending = false;
             state.chamberLoadedCount = 6;
             state.sawedOff = false;
@@ -1934,12 +1954,15 @@
 
         let state = {
             round: 1,
-            phase: 'COMBAT', // 'COMBAT' | 'QUIZ' | 'GAMEOVER'
+            phase: 'COMBAT', // 'COMBAT' | 'ROUND_QUIZ' | 'QUIZ' | 'GAMEOVER'
             turnIndex: 0,
-            direction: 1, // Chiều lượt cố định theo chiều kim đồng hồ
+            direction: 1,
             chamber: [], // 6 viên; true = đạn thật, false = đạn giả
             chamberLoadedCount: 6,
             reloadPending: false,
+            roundPending: [], // Người còn sống phải bắn trong vòng hiện tại
+            roundQuiz: null,
+            roundQuizUsedIds: [],
             sawedOff: false,
             showPinyin: true,
             simulatedSeatMode: 'auto', // 'auto' or 0..5
@@ -2015,16 +2038,16 @@
             clearAllSecretPeeks();
             playSound('rack');
             renderAll();
-            setLog(`🔄 Đã nạp 6 viên: ${liveCount} đạn thật và ${blankCount} đạn giả. Hãy chọn mục tiêu!`);
+            setLog('🔄 Đã nạp 6 viên đạn. Trong băng có ngẫu nhiên 1–3 viên thật; thứ tự được giữ bí mật.');
 
             if (showModal) {
                 const modal = document.getElementById('shellLoadModal');
-                document.getElementById('loadModalTitle').textContent = `BĂNG ĐẠN SỐ ${state.round}`;
-                document.getElementById('loadModalCountsText').textContent = `${liveCount} ĐẠN THẬT (ĐỎ) • ${blankCount} ĐẠN GIẢ (XANH) • TỔNG 6 VIÊN`;
+                document.getElementById('loadModalTitle').textContent = 'BĂNG ĐẠN MỚI';
+                document.getElementById('loadModalCountsText').textContent = '6 VIÊN • 1–3 ĐẠN THẬT • THỨ TỰ ĐÃ ĐƯỢC GIỮ BÍ MẬT';
                 const visuals = document.getElementById('loadModalShellVisuals');
                 visuals.innerHTML = '';
                 unshuffled.forEach((isLive, index) => {
-                    visuals.innerHTML += `<div class="w-5 h-12 rounded-md ${isLive ? 'bg-gradient-to-b from-amber-300 via-rose-600 to-rose-900 border-rose-300' : 'bg-gradient-to-b from-amber-300 via-cyan-600 to-slate-900 border-cyan-300'} border-2 shadow-lg flex items-end justify-center pb-1 text-[8px] font-bold text-white" title="Viên ${index + 1}">${isLive ? 'T' : 'G'}</div>`;
+                    visuals.innerHTML += `<div class="w-5 h-12 rounded-md bg-gradient-to-b from-slate-300 via-slate-600 to-slate-900 border border-amber-300/70 shadow-lg flex items-end justify-center pb-1 text-[8px] font-bold text-white" title="Viên ${index + 1}">?</div>`;
                 });
                 modal.classList.remove('hidden');
                 state.loadTimerId = setTimeout(() => {
@@ -2066,7 +2089,6 @@
                 setLog('🔄 Đã bắn hết 6 viên. Đang nạp băng 6 viên mới...');
                 setTimeout(() => {
                     if (state.phase === 'COMBAT' && state.started && state.chamber.length === 0) {
-                        state.round++;
                         generateChamberLoad(true);
                     } else {
                         state.reloadPending = false;
@@ -2277,7 +2299,7 @@
                 } else {
                     playSound('blankShot');
                     if (shooterIndex === targetIndex) {
-                        setLog(`💨 TÁCH! ĐẠN GIẢ! ${shooter.name} tự bắn mình an toàn và ĐƯỢC GIỮ LƯỢT!`);
+                        setLog(`💨 TÁCH! ĐẠN GIẢ! ${shooter.name} tự bắn mình an toàn. Chuyển lượt!`);
                     } else {
                         setLog(`💨 TÁCH! ĐẠN GIẢ! ${target.name} bình an vô sự. Chuyển lượt!`);
                     }
@@ -2292,13 +2314,22 @@
                     state.busyAnimating = false;
                     if (checkVictoryCondition()) return;
 
-                    // Xác định lượt kế tiếp trước khi nạp băng mới.
-                    const keepTurn = !isLive && shooterIndex === targetIndex && shooter.hp > 0;
-                    if (!keepTurn) advanceToNextLivingPlayer(false);
-                    if (handleSupplyOrAmmoTransition()) return;
+                    // Mỗi người chỉ bắn một lần trong một vòng, kể cả khi bắn đạn giả hoặc tự bắn.
+                    // Người bị loại trước lượt của mình được tự động bỏ qua.
+                    state.roundPending = (state.roundPending || []).filter(idx =>
+                        idx !== shooterIndex && state.players[idx] && state.players[idx].hp > 0
+                    );
 
+                    if (state.roundPending.length === 0) {
+                        startRoundQuickQuiz();
+                        return;
+                    }
+
+                    const nextSeat = findNextRoundPendingSeat(shooterIndex);
+                    if (nextSeat !== null) state.turnIndex = nextSeat;
                     renderAll();
                     broadcastStateToPhones();
+                    if (handleSupplyOrAmmoTransition()) return;
                     checkIfAiShouldAct();
                 }, 900);
             }, 650);
@@ -2326,6 +2357,147 @@
                     return;
                 }
             }
+        }
+
+        function findNextRoundPendingSeat(afterIndex) {
+            const pending = new Set((state.roundPending || []).filter(idx => state.players[idx] && state.players[idx].hp > 0));
+            for (let step = 1; step <= 6; step++) {
+                const idx = (afterIndex + (state.direction || 1) * step + 12) % 6;
+                if (pending.has(idx)) return idx;
+            }
+            return null;
+        }
+
+        function renderRoundQuickQuizHost() {
+            const modal = document.getElementById('roundQuickQuizModal');
+            if (!modal || !state.roundQuiz) return;
+            const rq = state.roundQuiz;
+            const q = rq.currentQuestion;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('roundQuickQuizTitle').textContent = `VÒNG ${state.round} · CÂU HỎI GIÀNH QUYỀN XEM ĐẠN`;
+            document.getElementById('roundQuickQuizPrompt').textContent = q ? q.q : '';
+            document.getElementById('roundQuickQuizPinyin').textContent = q ? q.qPinyin : '';
+            const choices = document.getElementById('roundQuickQuizChoices');
+            choices.innerHTML = '';
+            (q?.options || []).forEach((option, index) => {
+                const item = document.createElement('div');
+                item.className = 'rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm md:text-base font-bold text-white';
+                item.textContent = option;
+                choices.appendChild(item);
+            });
+            const timer = document.getElementById('roundQuickQuizTimer');
+            if (timer) timer.textContent = `${rq.timeLeft ?? 0}s`;
+            const status = document.getElementById('roundQuickQuizStatus');
+            if (rq.winnerSeat !== null && rq.winnerSeat !== undefined) {
+                const winner = state.players[rq.winnerSeat];
+                status.textContent = `🏆 ${winner?.name || `Ghế ${rq.winnerSeat + 1}`} trả lời đúng nhanh nhất và đã nhận quyền xem đạn bí mật.`;
+                status.className = 'text-sm font-bold text-emerald-300';
+            } else if (rq.closed) {
+                status.textContent = `Hết giờ hoặc không có câu trả lời đúng. Đáp án: ${q?.options?.[q?.answer] || '—'}. Không ai nhận quyền xem đạn.`;
+                status.className = 'text-sm font-bold text-rose-300';
+            } else {
+                status.textContent = `Đã có ${(rq.answeredSeats || []).length} người trả lời. Chỉ câu trả lời đúng đầu tiên mới thắng.`;
+                status.className = 'text-sm font-bold text-slate-200';
+            }
+        }
+
+        function startRoundQuickQuiz() {
+            if (!state.started || state.phase === 'GAMEOVER' || state.phase === 'ROUND_QUIZ') return;
+            // Khóa pha chiến đấu trước khi nạp đạn để AI không bóp cò trong lúc chuẩn bị câu hỏi.
+            state.phase = 'ROUND_QUIZ';
+            state.busyAnimating = false;
+            // Nếu viên cuối cùng vừa được bắn, nạp băng kế tiếp trước khi trao quyền soi.
+            if (state.chamber.length === 0) generateChamberLoad(false);
+            const unused = HSK_VOCAB_BANK.filter(q => !(state.roundQuizUsedIds || []).includes(q.id));
+            const pool = unused.length ? unused : HSK_VOCAB_BANK;
+            const question = pool[Math.floor(Math.random() * pool.length)];
+            state.roundQuizUsedIds = [...(state.roundQuizUsedIds || []), question.id];
+            state.roundQuiz = {
+                id: `rq-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                currentQuestion: question,
+                answeredSeats: [],
+                winnerSeat: null,
+                closed: false,
+                timeLeft: 15,
+                timerId: null,
+                closeTimerId: null
+            };
+            setLog(`⚡ Kết thúc vòng ${state.round}! Tất cả người chơi còn sống hãy trả lời nhanh để giành quyền xem viên đạn kế tiếp.`);
+            renderRoundQuickQuizHost();
+            renderAll();
+            broadcastStateToPhones();
+
+            state.roundQuiz.timerId = setInterval(() => {
+                if (!state.roundQuiz || state.phase !== 'ROUND_QUIZ' || state.roundQuiz.closed) return;
+                state.roundQuiz.timeLeft = Math.max(0, state.roundQuiz.timeLeft - 1);
+                renderRoundQuickQuizHost();
+                broadcastStateToPhones();
+                if (state.roundQuiz.timeLeft <= 0) closeRoundQuickQuiz(null);
+            }, 1000);
+        }
+
+        function handleRoundQuickQuizAnswer(seatIdx, payload) {
+            const rq = state.roundQuiz;
+            if (state.phase !== 'ROUND_QUIZ' || !rq || rq.closed || !payload || payload.quizId !== rq.id) return;
+            const player = state.players[seatIdx];
+            if (!player || player.hp <= 0 || player.isAI || rq.answeredSeats.includes(seatIdx)) return;
+            const choice = Number(payload.choice);
+            if (!Number.isInteger(choice) || choice < 0 || choice >= rq.currentQuestion.options.length) return;
+
+            rq.answeredSeats.push(seatIdx); // Mỗi người chỉ có một lần trả lời trong câu hỏi này.
+            if (choice === rq.currentQuestion.answer && rq.winnerSeat === null) {
+                rq.winnerSeat = seatIdx;
+                player.secretPeekText = state.chamber[0]
+                    ? '🔎 VIÊN ĐẠN KẾ TIẾP: ĐẠN THẬT'
+                    : '🔎 VIÊN ĐẠN KẾ TIẾP: ĐẠN GIẢ';
+                playSound('correct');
+                setLog(`🏆 ${player.name} trả lời đúng nhanh nhất! Quyền xem viên đạn kế tiếp đã được gửi riêng cho người chơi này.`);
+                closeRoundQuickQuiz(seatIdx);
+                return;
+            }
+
+            playSound('wrong');
+            const activeHumanSeats = state.players
+                .filter(p => p.hp > 0 && !p.isAI && p.connectedPeerId && phoneConnections[p.index]?.open)
+                .map(p => p.index);
+            renderRoundQuickQuizHost();
+            broadcastStateToPhones();
+            if (activeHumanSeats.length && activeHumanSeats.every(idx => rq.answeredSeats.includes(idx))) {
+                closeRoundQuickQuiz(null);
+            }
+        }
+
+        function closeRoundQuickQuiz(winnerSeat = null) {
+            const rq = state.roundQuiz;
+            if (!rq || rq.closed) return;
+            rq.closed = true;
+            if (rq.timerId) clearInterval(rq.timerId);
+            rq.timerId = null;
+            renderRoundQuickQuizHost();
+            renderAll();
+            broadcastStateToPhones();
+            rq.closeTimerId = setTimeout(finishRoundQuickQuiz, winnerSeat !== null ? 3200 : 2200);
+        }
+
+        function finishRoundQuickQuiz() {
+            const rq = state.roundQuiz;
+            if (rq?.timerId) clearInterval(rq.timerId);
+            if (rq?.closeTimerId) clearTimeout(rq.closeTimerId);
+            const modal = document.getElementById('roundQuickQuizModal');
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+            state.roundQuiz = null;
+            if (state.phase === 'GAMEOVER') return;
+            state.phase = 'COMBAT';
+            state.round++;
+            state.roundPending = state.players.filter(p => p.hp > 0).map(p => p.index);
+            const nextSeat = findNextRoundPendingSeat(state.turnIndex);
+            if (nextSeat !== null) state.turnIndex = nextSeat;
+            pointShotgunAtSeat(state.turnIndex);
+            setLog(`🔫 Bắt đầu vòng ${state.round}. Mỗi người còn sống có đúng một lượt bắn; cuối vòng sẽ có câu hỏi nhanh.`);
+            renderAll();
+            broadcastStateToPhones();
+            if (!checkVictoryCondition()) checkIfAiShouldAct();
         }
 
         const RECENT_WINNERS_KEY = 'co_quay_sinh_tu_recent_winners_v1';
@@ -3134,6 +3306,8 @@
                 executeShot(seatIdx, payload.target);
             } else if (payload.type === 'QUIZ_ANSWER') {
                 submitQuizAnswer(seatIdx, payload.choice);
+            } else if (payload.type === 'ROUND_QUIZ_ANSWER') {
+                handleRoundQuickQuizAnswer(seatIdx, payload);
             }
         }
 
@@ -3157,6 +3331,17 @@
                             activeQuizSeat: state.quiz.seatOrder[state.quiz.currentOrderPos],
                             questionNum: state.quiz.questionNum,
                             options: state.quiz.currentQuestion ? state.quiz.currentQuestion.options : []
+                        } : null,
+                        roundQuiz: state.phase === 'ROUND_QUIZ' && state.roundQuiz ? {
+                            id: state.roundQuiz.id,
+                            question: state.roundQuiz.currentQuestion?.q || '',
+                            pinyin: state.roundQuiz.currentQuestion?.qPinyin || '',
+                            options: [...(state.roundQuiz.currentQuestion?.options || [])],
+                            answeredSeats: [...state.roundQuiz.answeredSeats],
+                            winnerSeat: state.roundQuiz.winnerSeat,
+                            winnerName: state.roundQuiz.winnerSeat !== null ? (state.players[state.roundQuiz.winnerSeat]?.name || '') : '',
+                            timeLeft: state.roundQuiz.timeLeft,
+                            closed: state.roundQuiz.closed
                         } : null
                     });
                 }
@@ -3465,9 +3650,46 @@
             const combatPanel = document.getElementById('mobCombatPanel');
             const quizPanel = document.getElementById('mobQuizPanel');
 
-            if (data.phase === 'QUIZ' && data.quiz) {
+            if (data.phase === 'ROUND_QUIZ' && data.roundQuiz) {
                 combatPanel.classList.add('hidden');
                 quizPanel.classList.remove('hidden');
+                document.getElementById('mobQuizHeaderLabel').textContent = '⚡ CÂU HỎI NHANH CUỐI VÒNG';
+                document.getElementById('mobRoundQuickQuestion').classList.remove('hidden');
+                document.getElementById('mobRoundQuickPrompt').textContent = data.roundQuiz.question || '';
+                document.getElementById('mobRoundQuickPinyin').textContent = data.roundQuiz.pinyin || '';
+                const alreadyAnswered = (data.roundQuiz.answeredSeats || []).includes(data.seatIndex);
+                const hasWinner = data.roundQuiz.winnerSeat !== null && data.roundQuiz.winnerSeat !== undefined;
+                const isAlive = p.hp > 0;
+                const meta = document.getElementById('mobQuizMeta');
+                if (data.roundQuiz.winnerSeat === data.seatIndex) {
+                    meta.textContent = '🏆 BẠN TRẢ LỜI ĐÚNG NHANH NHẤT!';
+                } else if (hasWinner) {
+                    meta.textContent = `Ghế ${Number(data.roundQuiz.winnerSeat) + 1} đã thắng quyền xem đạn.`;
+                } else if (alreadyAnswered) {
+                    meta.textContent = 'Bạn đã trả lời · Đang chờ kết quả...';
+                } else if (!isAlive) {
+                    meta.textContent = 'Bạn đã bị loại · Có thể theo dõi câu hỏi.';
+                } else if (data.roundQuiz.closed) {
+                    meta.textContent = 'Câu hỏi đã kết thúc · Đang chuẩn bị vòng tiếp theo.';
+                } else {
+                    meta.textContent = `TRẢ LỜI NHANH! CÒN ${data.roundQuiz.timeLeft}s`;
+                }
+                const qBtns = document.getElementById('mobQuizButtons');
+                qBtns.innerHTML = '';
+                const colors = ['bg-rose-600', 'bg-blue-600', 'bg-amber-500', 'bg-emerald-600'];
+                (data.roundQuiz.options || []).forEach((opt, idx) => {
+                    const b = document.createElement('button');
+                    b.disabled = !isAlive || alreadyAnswered || hasWinner || data.roundQuiz.closed;
+                    b.className = `w-full py-5 px-4 rounded-2xl font-chinese font-extrabold text-xl text-white shadow-xl ${colors[idx]} ${b.disabled ? 'opacity-40' : 'active:scale-95'}`;
+                    b.textContent = opt;
+                    b.onclick = () => mobileSendAction({ type: 'ROUND_QUIZ_ANSWER', quizId: data.roundQuiz.id, choice: idx });
+                    qBtns.appendChild(b);
+                });
+            } else if (data.phase === 'QUIZ' && data.quiz) {
+                combatPanel.classList.add('hidden');
+                quizPanel.classList.remove('hidden');
+                document.getElementById('mobQuizHeaderLabel').textContent = 'NHÌN CÂU HỎI TRÊN MÀN HÌNH CHỦ LAPTOP';
+                document.getElementById('mobRoundQuickQuestion').classList.add('hidden');
                 const isMyQuizTurn = (data.quiz.activeQuizSeat === data.seatIndex);
                 document.getElementById('mobQuizMeta').textContent = isMyQuizTurn
                     ? `ĐẾN LƯỢT BẠN! CÂU HỎI ${data.quiz.questionNum}/3`
@@ -3487,12 +3709,14 @@
             } else {
                 quizPanel.classList.add('hidden');
                 combatPanel.classList.remove('hidden');
+                document.getElementById('mobRoundQuickQuestion').classList.add('hidden');
+                document.getElementById('mobQuizHeaderLabel').textContent = 'NHÌN CÂU HỎI TRÊN MÀN HÌNH CHỦ LAPTOP';
 
                 const isMyTurn = (data.phase === 'COMBAT' && data.turnIndex === data.seatIndex);
                 const turnBanner = document.getElementById('mobTurnBanner');
                 turnBanner.textContent = data.phase === 'LOBBY'
                     ? '🕒 ĐÃ VÀO PHÒNG · ĐANG CHỜ CHỦ PHÒNG BẮT ĐẦU TRẬN'
-                    : (isMyTurn ? "🔥 ĐẾN LƯỢT CỦA BẠN! HÃY CHỌN MỤC TIÊU VÀ BÓP CÒ" : `⏳ Đang chờ lượt của Ghế #${data.turnIndex + 1}...`);
+                    : (isMyTurn ? '🔥 ĐẾN LƯỢT BẠN! CHỌN MỤC TIÊU — MỖI VÒNG CHỈ BẮN 1 LẦN' : `⏳ Đang chờ Ghế #${data.turnIndex + 1}...`);
 
                 const targetsGrid = document.getElementById('mobShootTargetsGrid');
                 targetsGrid.innerHTML = '';
@@ -3616,6 +3840,13 @@
 
         function changeSeatModePreset(preset) {
             if (state.quiz.timerId) clearInterval(state.quiz.timerId);
+            if (state.roundQuiz?.timerId) clearInterval(state.roundQuiz.timerId);
+            if (state.roundQuiz?.closeTimerId) clearTimeout(state.roundQuiz.closeTimerId);
+            const quickModal = document.getElementById('roundQuickQuizModal');
+            if (quickModal) { quickModal.classList.add('hidden'); quickModal.classList.remove('flex'); }
+            state.roundQuiz = null;
+            state.roundPending = [];
+            state.roundQuizUsedIds = [];
             document.getElementById('quizPhaseModal').classList.add('hidden');
             const connectedSeatInfo = Object.entries(phoneConnections).map(([seatKey, conn]) => ({
                 seat: Number(seatKey), conn, name: state.players[Number(seatKey)]?.name || ''
@@ -3716,6 +3947,9 @@
             state.phase = 'COMBAT';
             state.turnIndex = state.players.findIndex(p => p.hp > 0);
             if (state.turnIndex < 0) state.turnIndex = 0;
+            state.roundPending = state.players.filter(p => p.hp > 0).map(p => p.index);
+            state.roundQuiz = null;
+            state.roundQuizUsedIds = [];
             document.getElementById('qrLobbyModal').classList.add('hidden');
             setLog('🎮 Đủ 6/6 ghế! Trận đấu chính thức bắt đầu.');
             updateLobbyStartButton();
@@ -3853,6 +4087,9 @@
             state.started = false;
             state.phase = 'LOBBY';
             state.chamber = [];
+            state.roundPending = [];
+            state.roundQuiz = null;
+            state.roundQuizUsedIds = [];
             initNetworking();
             if (!mobileState.isMobileClient) {
                 renderAll();
